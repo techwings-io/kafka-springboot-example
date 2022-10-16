@@ -13,9 +13,9 @@ public class ConsumerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsumerService.class);
 
-    @KafkaListener(id = "myId", topics = "first_topic")
+    @KafkaListener(id = "KafkaLearningApplication", topics = "first_topic")
     public void listen(Party val) {
-        LOG.info("Listening...");
-        System.out.println(val.toString());
+
+        LOG.info("Received: {}", val);
     }
 }
