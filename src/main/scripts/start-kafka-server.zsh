@@ -11,7 +11,3 @@ kafka-storage format -t "$clusterId" -c "$kraft_server_properties" --ignore-form
 
 echo "Starting broker..."
 kafka-server-start "$kraft_server_properties" 
-
-echo "Creating topic: first_topic"
-kafka-topics --bootstrap-server localhost:9092 --create --topic first_topic >> /dev/null
-echo "Topic: first_topic created"
