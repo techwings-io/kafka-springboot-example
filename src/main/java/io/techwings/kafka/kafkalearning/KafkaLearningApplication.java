@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 public class KafkaLearningApplication {
 
+	public static final String TOPIC_NAME = "first_topic";
+
 	public static void main(String[] args) {
 		SpringApplication.run(KafkaLearningApplication.class, args);
 	}

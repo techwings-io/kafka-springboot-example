@@ -9,6 +9,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+import io.techwings.kafka.kafkalearning.KafkaLearningApplication;
 import io.techwings.kafka.kafkalearning.dto.Party;
 
 @Service
@@ -23,7 +24,7 @@ public class ProducerService {
         LOG.info("Sending data: ", data);
         Message<Party> message = MessageBuilder
                 .withPayload(data)
-                .setHeader(KafkaHeaders.TOPIC, "first_topic")
+                .setHeader(KafkaHeaders.TOPIC, KafkaLearningApplication.TOPIC_NAME)
                 .build();
 
         kafkaTemplate.send(message);
