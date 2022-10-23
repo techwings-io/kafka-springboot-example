@@ -71,3 +71,23 @@ With the following body (it's important that you ensure it's a JSON request with
 ```
 
 Observe the console output and you will notice that your request gets processed by the Spring Boot controller, it invokes a Kafka publisher to send the message to the topic and a Spring consumer consumes that message and prints the output
+
+## To stop the background Kafka process
+
+**WARNING: The execution of this script is at your own peril! Please make sure it's safe to execute it. The author doesn't accept any responsibilities for the background process that might be killed in an uncontrolled way.**
+
+The script retrieves the Kafka background PID with the following command:
+
+```
+ps -efa | grep kafka.Kafka | grep -v grep |awk '{ print $2 }'
+```
+
+And then it kills the retrieved PID with -9
+
+To stop the background process, execute the following script:
+
+```
+./stop-background-process.zsh
+```
+
+Alternatively you can use the ps -efa command to identify the PID yourself
