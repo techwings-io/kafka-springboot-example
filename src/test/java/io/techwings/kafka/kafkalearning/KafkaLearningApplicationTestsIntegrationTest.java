@@ -1,28 +1,20 @@
 package io.techwings.kafka.kafkalearning;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import io.techwings.kafka.kafkalearning.controllers.KafkaProducerController;
 import io.techwings.kafka.kafkalearning.dto.Party;
-import io.techwings.kafka.kafkalearning.services.ConsumerService;
-import io.techwings.kafka.kafkalearning.services.ProducerService;
 
 /**
  * Assumes a local Kafka instance running on localhost:9092 with an existing

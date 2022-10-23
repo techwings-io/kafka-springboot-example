@@ -9,18 +9,14 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.techwings.kafka</groupId>
-	<artifactId>kafka-learning</artifactId>
+	<artifactId>kafka-springboot-example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>kafka-learning</name>
+	<name>kafka-springboot-example</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
+	<dependencies>		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -36,10 +32,6 @@
 		<dependency>
       		<groupId>org.springframework.boot</groupId>
       		<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-    		<groupId>org.springframework.boot</groupId>
-    		<artifactId>spring-boot-starter-validation</artifactId>	
 		</dependency>		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
