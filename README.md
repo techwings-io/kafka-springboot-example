@@ -50,10 +50,11 @@ java -version
 wrapper.zsh
 ```
 
-This command will execute the _./start-kafka-server.zsh_ file which starts the kakfa server in the background and prints out the process id in case you want to kill the process later (e.g. kill -9 PID) and then will execute the _./create-topic.zsh_ file to create the topic _first_topic_ in your cluster.
+This command will execute the _./start-kafka-server.zsh_ file which starts the kakfa server in Kraft mode (i.e. without Zookeper as this is on the sunsetting path) in the background and prints out the process id in case you want to kill the process later (e.g. kill -9 PID) and then will execute the _./create-topic.zsh_ file to create the topic _first_topic_ in your cluster.
 
 - At this point your Kafka server should be up and running in the background on localhost:9092
 - Start the KafkaLearningApplication.java Spring Boot app. This will startup a Servlet container on port 8080
+- The Kafka configuration resides in the _application.properties_ file and you can change it if you want (e.g. to point to an existing Kafka cluster)
 - You can then use Postman or other tool to perform a POST request to the following URL:
 
 ```
