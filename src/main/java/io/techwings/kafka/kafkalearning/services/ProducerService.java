@@ -24,13 +24,7 @@ public class ProducerService {
 
     public void sendMessage(Party data) {
         LOG.info("Sending data: ", data);
-        Message<Party> message = MessageBuilder
-                .withPayload(data)
-                .setHeader(KafkaHeaders.TOPIC, KafkaLearningApplication.TOPIC_NAME)
-                .build();
-
-        kafkaTemplate.send(message);
-
+        kafkaTemplate.send(KafkaLearningApplication.TOPIC_NAME, "party_key", data);
         LOG.info("Data Sent");
 
     }

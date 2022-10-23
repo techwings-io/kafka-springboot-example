@@ -55,6 +55,7 @@ public class KafkaConfig {
 
                 LOG.info("ACK from ProducerListener. Message: {}", producerRecord.value());
                 LOG.info("Topic: {}", recordMetadata.topic());
+                LOG.info("Key: {}", producerRecord.key());
                 LOG.info("Partition: {}", recordMetadata.partition());
                 LOG.info("Offset: {}", recordMetadata.offset());
                 LOG.info("Timestamp: {}", recordMetadata.timestamp());
