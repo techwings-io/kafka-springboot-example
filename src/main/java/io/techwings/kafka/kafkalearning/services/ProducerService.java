@@ -24,7 +24,7 @@ public class ProducerService {
 
     public void sendMessage(Party data) {
         LOG.info("Sending data: ", data);
-        kafkaTemplate.send(KafkaLearningApplication.TOPIC_NAME, "party_key", data);
+        kafkaTemplate.send(KafkaLearningApplication.TOPIC_NAME, data);
         LOG.info("Data Sent");
 
     }
