@@ -1,5 +1,6 @@
 package io.techwings.kafka.kafkalearning.config;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +18,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.ProducerListener;
 
-import io.techwings.kafka.kafkalearning.dto.Party;
+import com.launchdarkly.eventsource.EventHandler;
+import com.launchdarkly.eventsource.EventSource;
+
+import io.techwings.kafka.kafkalearning.services.WikimediaEventHandler;
 
 @Configuration
 public class KafkaConfig {
@@ -36,21 +41,22 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, producerKeySerializerClass);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, producerValueSerializerClass);
+
         return props;
     }
 
     @Bean
-    public ProducerFactory<String, Party> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean(name = "customTemplate")
-    public KafkaTemplate<String, Party> kafkaTemplate() {
-        KafkaTemplate<String, Party> template = new KafkaTemplate<>(producerFactory());
-        template.setProducerListener(new ProducerListener<String, Party>() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
+        KafkaTemplate<String, String> template = new KafkaTemplate<>(producerFactory());
+        template.setProducerListener(new ProducerListener<String, String>() {
             @Override
             public void onSuccess(
-                    ProducerRecord<String, Party> producerRecord,
+                    ProducerRecord<String, String> producerRecord,
                     RecordMetadata recordMetadata) {
 
                 LOG.info("ACK from ProducerListener. Message: {}", producerRecord.value());
@@ -64,4 +70,5 @@ public class KafkaConfig {
         });
         return template;
     }
+
 }
