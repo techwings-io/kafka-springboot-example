@@ -30,7 +30,7 @@ public class BootstrapService implements CommandLineRunner {
         LOG.info("Starting the Wikimedia Source...");
         source.start();
 
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(3);
 
         source.close();
 
