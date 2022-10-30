@@ -41,6 +41,9 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, producerKeySerializerClass);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, producerValueSerializerClass);
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 20);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32 * 1024));
 
         return props;
     }
@@ -66,6 +69,12 @@ public class KafkaConfig {
                 LOG.info("Offset: {}", recordMetadata.offset());
                 LOG.info("Timestamp: {}", recordMetadata.timestamp());
 
+            }
+
+            public void onError(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata,
+                    Exception exception) {
+                LOG.error("Error occurred while sending data {} to topic {}. Exception: {}", producerRecord,
+                        recordMetadata.topic(), exception);
             }
         });
         return template;
