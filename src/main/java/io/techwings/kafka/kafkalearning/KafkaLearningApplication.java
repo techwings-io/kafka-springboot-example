@@ -3,8 +3,10 @@ package io.techwings.kafka.kafkalearning;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.kafka.annotation.EnableKafka;
 
 @SpringBootApplication
+@EnableKafka
 @ComponentScan(basePackages = "io.techwings.kafka.kafkalearning")
 public class KafkaLearningApplication {
 

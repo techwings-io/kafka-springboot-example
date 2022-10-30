@@ -10,14 +10,14 @@ import io.techwings.kafka.kafkalearning.dto.Party;
 
 @Service
 
-public class AnotherConsumerService {
+public class ThirdConsumerService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnotherConsumerService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThirdConsumerService.class);
 
-    @KafkaListener(id = "AnotherConsumerService=KafkaLearning", topics = KafkaLearningApplication.TOPIC_NAME, groupId = "consumer-group-2")
+    @KafkaListener(id = "ThirdConsumerService=KafkaLearning", topics = KafkaLearningApplication.TOPIC_NAME, groupId = "consumer-group-3")
     public void listen(Party val) {
 
-        LOG.info("Consumer id: {} - Received: {}", "AnotherConsumerService=KafkaLearning", val);
+        LOG.info("Consumer id: {} - Received: {}", "ThirdConsumerService=KafkaLearning", val);
     }
 
 }
