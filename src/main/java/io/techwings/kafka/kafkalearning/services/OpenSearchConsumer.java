@@ -1,7 +1,13 @@
 package io.techwings.kafka.kafkalearning.services;
 
 import java.io.IOException;
+import java.util.Arrays;
 
+import javax.annotation.PreDestroy;
+
+import org.opensearch.action.bulk.BulkItemResponse;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
@@ -23,6 +29,10 @@ public class OpenSearchConsumer {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
+    private final BulkRequest bulkRequest = new BulkRequest();
+
+    private final int BULK_SIZE = 50;
+
     @KafkaListener(topics = "wikimedia.recentchange", groupId = "opensearch-consumer-group")
     public void consumeOpenSearchMessages(String message) {
         // Extraction of the meta/id value from the wikimedia object is used to make the
@@ -33,12 +43,37 @@ public class OpenSearchConsumer {
         IndexRequest indexRequest = new IndexRequest(BootstrapService.OPEN_SEARCH_INDEX_NAME);
         indexRequest.source(message, XContentType.JSON).id(id);
         try {
-            IndexResponse response = restHighLevelClient.index(
-                    indexRequest, RequestOptions.DEFAULT);
-            LOG.info("Message id {} sent to Open Search index {}", response.getId(),
-                    BootstrapService.OPEN_SEARCH_INDEX_NAME);
+            if (bulkRequest.numberOfActions() >= BULK_SIZE) {
+                restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                LOG.info("Bulk messages sent to OpenSearch");
+            } else {
+                bulkRequest.add(indexRequest);
+            }
+
         } catch (IOException e) {
             LOG.error("Error while publishing message {}", message, e);
+        }
+
+    }
+
+    public BulkRequest getBulkRequest() {
+        return bulkRequest;
+    }
+
+    @PreDestroy
+    public void flushLastBatchOfBulkRequests() {
+        try {
+            if (bulkRequest.numberOfActions() > 0) {
+                BulkResponse response = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                Arrays.stream(response.getItems()).forEach(br -> {
+                    LOG.info("Sent to open search with id {}", br.getId());
+                });
+
+                LOG.info("Last batch of {} bulk messages sent to OpenSearch", bulkRequest.numberOfActions());
+            }
+
+        } catch (IOException e) {
+            LOG.error("Error while sending the last batch", e);
         }
 
     }
