@@ -3,8 +3,6 @@ package io.techwings.kafka.kafkalearning.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.launchdarkly.eventsource.EventHandler;
@@ -17,10 +15,6 @@ public class WikimediaEventHandler implements EventHandler {
 
     @Autowired
     private WikimediaChangesProducer producerService;
-
-    @Qualifier("customTemplate")
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Override
     public void onOpen() {

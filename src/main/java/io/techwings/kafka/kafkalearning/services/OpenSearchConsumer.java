@@ -5,11 +5,9 @@ import java.util.Arrays;
 
 import javax.annotation.PreDestroy;
 
-import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
-import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.xcontent.XContentType;
@@ -33,7 +31,7 @@ public class OpenSearchConsumer {
 
     private final int BULK_SIZE = 50;
 
-    @KafkaListener(topics = "wikimedia.recentchange", groupId = "opensearch-consumer-group")
+    @KafkaListener(topics = "wikimedia_rc", groupId = "opensearch-consumer-group")
     public void consumeOpenSearchMessages(String message) {
         // Extraction of the meta/id value from the wikimedia object is used to make the
         // entries into OpenSearch idempotent, assuming an "at-least-once" kafka
@@ -44,7 +42,10 @@ public class OpenSearchConsumer {
         indexRequest.source(message, XContentType.JSON).id(id);
         try {
             if (bulkRequest.numberOfActions() >= BULK_SIZE) {
-                restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                bulkResponse.forEach(br -> {
+                    LOG.info("Send doc to index with id: {}", br.getId());
+                });
                 LOG.info("Bulk messages sent to OpenSearch");
             } else {
                 bulkRequest.add(indexRequest);

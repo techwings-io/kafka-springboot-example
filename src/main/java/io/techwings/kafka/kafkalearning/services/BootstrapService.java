@@ -1,9 +1,9 @@
 package io.techwings.kafka.kafkalearning.services;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
@@ -35,6 +35,11 @@ public class BootstrapService implements CommandLineRunner {
         LOG.info("Running");
         startWikipediaToKafkaStream();
 
+        createOpenSearchIndex();
+
+    }
+
+    private void createOpenSearchIndex() throws IOException {
         GetIndexRequest getIndexRequest = new GetIndexRequest(OPEN_SEARCH_INDEX_NAME);
         if (!restHighLevelClient.indices().exists(getIndexRequest, RequestOptions.DEFAULT)) {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest(OPEN_SEARCH_INDEX_NAME);
@@ -43,7 +48,6 @@ public class BootstrapService implements CommandLineRunner {
         } else {
             LOG.info("Index {} already exists", OPEN_SEARCH_INDEX_NAME);
         }
-
     }
 
     private void startWikipediaToKafkaStream() throws InterruptedException {
