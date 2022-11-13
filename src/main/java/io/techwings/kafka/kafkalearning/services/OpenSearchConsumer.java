@@ -38,35 +38,35 @@ public class OpenSearchConsumer {
         // consumer's strategy
         String messageId = extractIdFromWikimediaMessage(eventMessage);
         LOG.info("Consumed Open Search message {}", eventMessage);
-        IndexRequest indexRequest = new IndexRequest(BootstrapService.OPEN_SEARCH_INDEX_NAME);
-        indexRequest.source(eventMessage, XContentType.JSON).id(messageId);
+        IndexRequest indexRequest = indexDocument(eventMessage, messageId);
         try {
-            if (bulkRequest.numberOfActions() >= BULK_SIZE) {
-                restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-                LOG.info("Bulk messages sent to OpenSearch");
-            } else {
-                bulkRequest.add(indexRequest);
-            }
-
+            addRequestToBulkOrFlushBulk(indexRequest);
         } catch (IOException e) {
             LOG.error("Error while publishing message {}", eventMessage, e);
         }
 
     }
 
-    public BulkRequest getBulkRequest() {
-        return bulkRequest;
+    private void addRequestToBulkOrFlushBulk(IndexRequest indexRequest) throws IOException {
+        if (bulkRequest.numberOfActions() >= BULK_SIZE) {
+            restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+            LOG.info("Bulk messages sent to OpenSearch");
+        } else {
+            bulkRequest.add(indexRequest);
+        }
+    }
+
+    private IndexRequest indexDocument(String eventMessage, String messageId) {
+        IndexRequest indexRequest = new IndexRequest(BootstrapService.OPEN_SEARCH_INDEX_NAME);
+        indexRequest.source(eventMessage, XContentType.JSON).id(messageId);
+        return indexRequest;
     }
 
     @PreDestroy
     public void flushLastBatchOfBulkRequests() {
         try {
             if (bulkRequest.numberOfActions() > 0) {
-                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-                Arrays.stream(bulkResponse.getItems()).forEach(br -> {
-                    LOG.info("Sent to open search with id {}", br.getId());
-                });
-
+                restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
                 LOG.info("Last batch of {} bulk messages sent to OpenSearch", bulkRequest.numberOfActions());
             }
 
