@@ -18,39 +18,51 @@ public class OpenSearchConfig {
 
     @Bean
     public RestHighLevelClient restHighLevelClient() {
-        String connectionString = "http://localhost:9200";
 
-        RestHighLevelClient restHighLevelClient;
-        URI connectionUri = URI.create(connectionString);
+        URI connectionUri = getConnectionUri();
 
         String userLoginInformation = connectionUri.getUserInfo();
 
-        if (userLoginInformation == null) {
-            // REST client without security
-            restHighLevelClient = new RestHighLevelClient(
-                    RestClient.builder(new HttpHost(connectionUri.getHost(), connectionUri.getPort(), "http")));
+        return userLoginInformation == null ? new RestHighLevelClient(
+                RestClient.builder(new HttpHost(connectionUri.getHost(), connectionUri.getPort(), "http")))
+                : prepareClientWhenSecurityIsApplied(connectionUri, userLoginInformation);
 
-        } else {
-            // REST client with security
-            String[] authenticationInformation = userLoginInformation.split(":");
+    }
 
-            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY,
-                    new UsernamePasswordCredentials(authenticationInformation[0], authenticationInformation[1]));
+    private URI getConnectionUri() {
+        String connectionString = "http://localhost:9200";
+        return URI.create(connectionString);
+    }
 
-            restHighLevelClient = new RestHighLevelClient(
-                    RestClient
-                            .builder(new HttpHost(connectionUri.getHost(), connectionUri.getPort(),
-                                    connectionUri.getScheme()))
-                            .setHttpClientConfigCallback(
-                                    httpAsyncClientBuilder -> httpAsyncClientBuilder
-                                            .setDefaultCredentialsProvider(credentialsProvider)
-                                            .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())));
+    private RestHighLevelClient prepareClientWhenSecurityIsApplied(URI connectionUri, String userLoginInformation) {
+        RestHighLevelClient restHighLevelClient;
+        // REST client with security
+        String[] authenticationInformation = userLoginInformation.split(":");
 
-        }
+        CredentialsProvider credentialsProvider = getCredentialsProvider(authenticationInformation);
 
+        restHighLevelClient = getRestHighLevelClientWithCallbacks(connectionUri, credentialsProvider);
         return restHighLevelClient;
+    }
 
+    private RestHighLevelClient getRestHighLevelClientWithCallbacks(URI connectionUri,
+            CredentialsProvider credentialsProvider) {
+        RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
+                RestClient
+                        .builder(new HttpHost(connectionUri.getHost(), connectionUri.getPort(),
+                                connectionUri.getScheme()))
+                        .setHttpClientConfigCallback(
+                                httpAsyncClientBuilder -> httpAsyncClientBuilder
+                                        .setDefaultCredentialsProvider(credentialsProvider)
+                                        .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())));
+        return restHighLevelClient;
+    }
+
+    private CredentialsProvider getCredentialsProvider(String[] authenticationInformation) {
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(authenticationInformation[0], authenticationInformation[1]));
+        return credentialsProvider;
     }
 
 }

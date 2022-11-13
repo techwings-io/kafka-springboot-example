@@ -33,7 +33,6 @@ public class WebsiteCountStreamBuilder {
                     try {
                         final JsonNode jsonNode = OBJECT_MAPPER.readTree(changeJson);
                         JsonNode payloadNode = OBJECT_MAPPER.readTree(jsonNode.get("payload").asText());
-                        LOG.info("Payload node: {}", payloadNode.toPrettyString());
                         return payloadNode.get("server_name").asText();
                     } catch (IOException e) {
                         return "parse-error";
