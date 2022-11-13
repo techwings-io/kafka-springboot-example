@@ -44,15 +44,15 @@ public class KafkaConfig {
 
     @Bean
     public Map<String, Object> producerConfiguration() {
-        Map<String, Object> producerConfigurationProperties = new HashMap<>();
-        producerConfigurationProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        producerConfigurationProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, producerKeySerializerClass);
-        producerConfigurationProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, producerValueSerializerClass);
-        producerConfigurationProperties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
-        producerConfigurationProperties.put(ProducerConfig.LINGER_MS_CONFIG, PRODUCER_CONFIG_LINGER_IN_MILLISECONDS);
-        producerConfigurationProperties.put(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(THIRTY_TWO_MB));
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, producerKeySerializerClass);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, producerValueSerializerClass);
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, PRODUCER_CONFIG_LINGER_IN_MILLISECONDS);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(THIRTY_TWO_MB));
 
-        return producerConfigurationProperties;
+        return props;
     }
 
     @Bean

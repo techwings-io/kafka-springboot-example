@@ -32,7 +32,7 @@ public class KafkaStream {
     @Qualifier(KafkaConfig.KSTREAM_PROPERTIES_QUALIFIER)
     private Properties kStreamProperties;
 
-    private KafkaStreams streams;
+    private KafkaStreams kafkaStreams;
 
     public void activateStreamPipeline() {
         StreamsBuilder builder = new StreamsBuilder();
@@ -48,17 +48,17 @@ public class KafkaStream {
         EventCountTimeseriesBuilder eventCountTimeseriesBuilder = new EventCountTimeseriesBuilder(eventStream);
         eventCountTimeseriesBuilder.setup();
 
-        final Topology appTopology = builder.build();
-        LOG.info("Topology: {} ", appTopology.describe());
-        this.streams = new KafkaStreams(appTopology, kStreamProperties);
-        streams.start();
+        final Topology topology = builder.build();
+        LOG.info("Topology: {} ", topology.describe());
+        this.kafkaStreams = new KafkaStreams(topology, kStreamProperties);
+        kafkaStreams.start();
 
     }
 
     @PreDestroy
     public void cleanUpOnShutdown() {
         LOG.info("Received Bean shutdown request. Cleaning up resources...");
-        this.streams.close();
+        this.kafkaStreams.close();
         LOG.info("Stream closed.");
     }
 }

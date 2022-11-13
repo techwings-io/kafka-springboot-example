@@ -32,14 +32,14 @@ public class OpenSearchConsumer {
     private final int BULK_SIZE = 50;
 
     @KafkaListener(topics = "wikimedia_rc", groupId = "opensearch-consumer-group")
-    public void consumeOpenSearchMessages(String message) {
+    public void consumeOpenSearchMessages(String eventMessage) {
         // Extraction of the meta/id value from the wikimedia object is used to make the
         // entries into OpenSearch idempotent, assuming an "at-least-once" kafka
         // consumer's strategy
-        String messageId = extractIdFromWikimediaMessage(message);
-        LOG.info("Consumed Open Search message {}", message);
+        String messageId = extractIdFromWikimediaMessage(eventMessage);
+        LOG.info("Consumed Open Search message {}", eventMessage);
         IndexRequest indexRequest = new IndexRequest(BootstrapService.OPEN_SEARCH_INDEX_NAME);
-        indexRequest.source(message, XContentType.JSON).id(messageId);
+        indexRequest.source(eventMessage, XContentType.JSON).id(messageId);
         try {
             if (bulkRequest.numberOfActions() >= BULK_SIZE) {
                 restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
@@ -49,7 +49,7 @@ public class OpenSearchConsumer {
             }
 
         } catch (IOException e) {
-            LOG.error("Error while publishing message {}", message, e);
+            LOG.error("Error while publishing message {}", eventMessage, e);
         }
 
     }
