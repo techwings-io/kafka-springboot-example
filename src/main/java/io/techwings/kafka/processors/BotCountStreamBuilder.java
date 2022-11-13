@@ -1,6 +1,7 @@
 package io.techwings.kafka.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.kstream.KStream;
@@ -29,15 +30,7 @@ public class BotCountStreamBuilder {
         this.inputStream
                 .mapValues(changeJson -> {
                     try {
-                        final JsonNode jsonNode = OBJECT_MAPPER.readTree(changeJson);
-                        JsonNode payloadNode = OBJECT_MAPPER.readTree(jsonNode.get("payload").asText());
-                        if (null != payloadNode) {
-                            if (payloadNode.get("bot").asBoolean()) {
-                                return "bot";
-                            }
-                        }
-                        return "non-bot";
-
+                        return returnBotNonBot(changeJson);
                     } catch (IOException e) {
                         return "parse-error";
                     }
@@ -46,13 +39,29 @@ public class BotCountStreamBuilder {
                 .count(Materialized.as(BOT_COUNT_STORE))
                 .toStream()
                 .mapValues((key, value) -> {
-                    final Map<String, Long> kvMap = Map.of(String.valueOf(key), value);
                     try {
-                        return OBJECT_MAPPER.writeValueAsString(kvMap);
+                        return mapValues(key, value);
                     } catch (JsonProcessingException e) {
-                        return null;
+                        return "";
                     }
                 })
                 .to(BOT_COUNT_TOPIC);
+    }
+
+    private String mapValues(String key, Long value) throws JsonProcessingException {
+        final Map<String, Long> kvMap = Map.of(String.valueOf(key), value);
+        return OBJECT_MAPPER.writeValueAsString(kvMap);
+    }
+
+    private String returnBotNonBot(String changeJson) throws JsonProcessingException, JsonMappingException {
+        JsonNode payloadNode = getPayloadNode(changeJson);
+        if (payloadNode == null || !payloadNode.get("bot").asBoolean())
+            return "non-bot";
+        return "bot";
+    }
+
+    private JsonNode getPayloadNode(String changeJson) throws JsonProcessingException, JsonMappingException {
+        final JsonNode jsonNode = OBJECT_MAPPER.readTree(changeJson);
+        return OBJECT_MAPPER.readTree(jsonNode.get("payload").asText());
     }
 }
