@@ -18,12 +18,12 @@ public class WikimediaChangesProducer {
     private final Logger LOG = LoggerFactory.getLogger(WikimediaChangesProducer.class);
 
     @Value("${app.topic.name}")
-    private String topic;
+    private String topicName;
 
-    public void sendMessage(String data) {
-        LOG.info("Sending data to topic {}", topic);
-        kafkaTemplate.send(this.topic, data);
-        LOG.info("Wikimedia data sent to Kafka", data);
+    public void sendMessage(String eventData) {
+        LOG.info("Sending data to topic {}", topicName);
+        kafkaTemplate.send(this.topicName, eventData);
+        LOG.info("Wikimedia data sent to Kafka", eventData);
 
     }
 }

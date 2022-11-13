@@ -36,16 +36,13 @@ public class OpenSearchConsumer {
         // Extraction of the meta/id value from the wikimedia object is used to make the
         // entries into OpenSearch idempotent, assuming an "at-least-once" kafka
         // consumer's strategy
-        String id = extractIdFromMessage(message);
+        String messageId = extractIdFromWikimediaMessage(message);
         LOG.info("Consumed Open Search message {}", message);
         IndexRequest indexRequest = new IndexRequest(BootstrapService.OPEN_SEARCH_INDEX_NAME);
-        indexRequest.source(message, XContentType.JSON).id(id);
+        indexRequest.source(message, XContentType.JSON).id(messageId);
         try {
             if (bulkRequest.numberOfActions() >= BULK_SIZE) {
-                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-                bulkResponse.forEach(br -> {
-                    LOG.info("Send doc to index with id: {}", br.getId());
-                });
+                restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
                 LOG.info("Bulk messages sent to OpenSearch");
             } else {
                 bulkRequest.add(indexRequest);
@@ -65,8 +62,8 @@ public class OpenSearchConsumer {
     public void flushLastBatchOfBulkRequests() {
         try {
             if (bulkRequest.numberOfActions() > 0) {
-                BulkResponse response = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-                Arrays.stream(response.getItems()).forEach(br -> {
+                BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                Arrays.stream(bulkResponse.getItems()).forEach(br -> {
                     LOG.info("Sent to open search with id {}", br.getId());
                 });
 
@@ -79,7 +76,7 @@ public class OpenSearchConsumer {
 
     }
 
-    private String extractIdFromMessage(String message) {
+    private String extractIdFromWikimediaMessage(String message) {
         return JsonParser.parseString(message).getAsJsonObject().get("meta").getAsJsonObject().get("id").getAsString();
     }
 

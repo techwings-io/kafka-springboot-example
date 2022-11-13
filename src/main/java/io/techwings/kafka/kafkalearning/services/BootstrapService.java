@@ -28,14 +28,40 @@ public class BootstrapService implements CommandLineRunner {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
+    @Autowired
+    private KafkaStream kafkaStream;
+
     public static final String OPEN_SEARCH_INDEX_NAME = "wikimedia";
 
     @Override
     public void run(String... args) throws Exception {
-        LOG.info("Running");
-        startWikipediaToKafkaStream();
 
-        createOpenSearchIndex();
+        LOG.info("Running...");
+
+        // Uncomment the method below to read the stream from Wikimedia as opposed to
+        // using
+        // a connect-standalone Kafka connector. To use the standalone connector
+        // you'd use a command like the following:
+        // <code>
+        // connect-standalone kafka-connectors/config/connect-standalone.properties
+        // kafka-connectors/config/wikimedia.properties
+        // </code>
+        // Please note: the event payload structure from the Event Source below is
+        // different from the one
+        // returned by the standalone connector. Currently the KafkaStream.pipeline
+        // method is coded to support
+        // the standalone format
+
+        // startWikipediaToKafkaStream();
+
+        // You must have OpenSearch running in order to execute the method below. There
+        // are Docker compose scripts on how to do this. One such example is in the
+        // source
+        // code for this project.
+
+        // createOpenSearchIndex();
+
+        kafkaStream.activateStreamPipeline();
 
     }
 
@@ -50,17 +76,18 @@ public class BootstrapService implements CommandLineRunner {
         }
     }
 
-    private void startWikipediaToKafkaStream() throws InterruptedException {
-        String url = "https://stream.wikimedia.org/v2/stream/recentchange";
-        EventHandler handler = this.eventHandler;
-        EventSource.Builder builder = new EventSource.Builder(handler, URI.create(url));
-        EventSource source = builder.build();
+    private void startWikimediaToKafkaStream() throws InterruptedException {
+        String wikimediaConnectionUrl = "https://stream.wikimedia.org/v2/stream/recentchange";
+        EventHandler eventHandler = this.eventHandler;
+        EventSource.Builder eventSourceBuilder = new EventSource.Builder(eventHandler,
+                URI.create(wikimediaConnectionUrl));
+        EventSource eventSource = eventSourceBuilder.build();
         LOG.info("Starting the Wikimedia Source...");
-        source.start();
+        eventSource.start();
 
-        TimeUnit.SECONDS.sleep(3);
+        TimeUnit.MINUTES.sleep(10);
 
-        source.close();
+        eventSource.close();
     }
 
 }

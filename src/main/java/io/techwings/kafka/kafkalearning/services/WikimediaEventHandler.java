@@ -40,8 +40,8 @@ public class WikimediaEventHandler implements EventHandler {
     }
 
     @Override
-    public void onError(Throwable t) {
-        LOG.error("Error while reading from the stream {}", t);
+    public void onError(Throwable error) {
+        LOG.error("Error while reading from the stream {}", error);
 
     }
 
